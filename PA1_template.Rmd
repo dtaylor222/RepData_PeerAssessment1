@@ -7,19 +7,80 @@ output:
 
 
 ## Loading and preprocessing the data
+test that the data file has been unzipped into the working directory  
 
+if not check that the source zip file is here,  
 
+if so, the archive only contains a single file so simply unzip it else quit  
+
+then read in the file and convert date column to date type
+
+```{r getandpreprocess, results='hide'}
+if (file.exists('activity.csv')){}else{
+        if(!file.exists('activity.zip')){
+                quit("Error: check working directory contains the file activity.zip")
+        }else{
+                   unzip("activity.zip")
+        }
+}
+# 
+activity <- read.csv(file = 'activity.csv', header = TRUE, stringsAsFactors = FALSE)
+activity$date <- as.Date(activity$date)
+```
 
 ## What is mean total number of steps taken per day?
+Group the data by day and use sum  
 
-
+I leave the breaks calculation on the histogram to R as this works nicely
+```{r averagingdays}
+daysum <- aggregate(activity$steps~activity$date, activity, sum)
+names(daysum) <- c("date", "stepcount")
+hist(daysum$stepcount, main = "histogram of daily stepcount", xlab = "stepcount")
+summary(daysum$stepcount)
+```
 
 ## What is the average daily activity pattern?
+Group by interval and use average  
 
+The interval code is of the form hHMM where h can be absent) but this maps nicely  
 
+so we can leave it as an integer expecting last data point to be 2355
+```{r activitypattern}
+intervalav <- aggregate(activity$steps~activity$interval, activity, mean)
+names(intervalav) <- c("interval", "averagesteps")
+plot(intervalav$interval ,intervalav$averagesteps, type = 'l',
+     main = "time series (mean of all days) step count",
+     xlab = "interval", ylab = "mean steps in interval")
+stepsmaxinterval <- intervalav[which.max(intervalav$averagesteps),1]
+```
+so the maximum average step count occurs at interval `r stepsmaxinterval`
 
 ## Imputing missing values
+We are goign to use data.tables to replace all NA interval figures  
 
+with the interval average figures from before - [source link to stack overflow](http://stackoverflow.com/questions/7971513/using-one-data-frame-to-update-another)  
+note i'm suppressing the typecast warnings here:
+```{r imputing, warning=FALSE}
+nullroes <- activity[is.na(activity$steps),]
+part1 <- nrow(nullroes)
+library(data.table)
+nullroes.dt <- data.table(nullroes, key = c("date", "interval"))
+activi.dt <- data.table(activity, key = c("date", "interval"))
+intervalav.dt <- data.table(intervalav, key = c("interval"))
+nullroes.dt$steps <- intervalav$averagesteps
+activi.dt[nullroes.dt] <- nullroes.dt
+newactidf <- as.data.frame(activi.dt)
+newdaysum <- aggregate(newactidf$steps~newactidf$date,newactidf, sum)
+names(newdaysum) <- c("date", "stepcount")
+hist(newdaysum$stepcount , main = "histogram of daily stepcount", xlab = "stepcount")
+summary(newdaysum$stepcount)
+```
+So we can see that there were `r part1` NA rows in the data set and perhaps  
+not surprisingly replacing them with our average hasnt changed much in the histogram
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r}
+
+```
+
