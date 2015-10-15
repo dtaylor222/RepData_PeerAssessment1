@@ -17,6 +17,11 @@ then read in the file and convert date column to date type
 
 
 ```r
+# load the libraries that we are goign to need
+library(data.table)
+library(dplyr)
+library(lattice)
+# check file and unzip as required
 if (file.exists('activity.csv')){#donothing
         }else{
                 if(!file.exists('activity.zip')){
@@ -84,7 +89,6 @@ note i'm suppressing the typecast warnings here:
 ```r
 nullroes <- activity[is.na(activity$steps),]
 part1 <- nrow(nullroes)
-library(data.table)
 nullroes.dt <- data.table(nullroes, key = c("date", "interval"))
 activi.dt <- data.table(activity, key = c("date", "interval"))
 intervalav.dt <- data.table(intervalav, key = c("interval"))
@@ -114,8 +118,6 @@ median and mean in the histogram much but the central frequency's magnitude has 
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-
-
 
 ```r
 new2actidf <- mutate(newactidf, 
@@ -148,7 +150,9 @@ str(new3actidf)
 ```
 
 ```r
-xyplot(meansteps~interval|wendind, data = new3actidf, type ='l', layout = c(1,2))
+xyplot(meansteps~interval|wendind, data = new3actidf, type ='l', 
+       layout = c(1,2),
+       main = 'daily activity patterns')
 ```
 
 ![plot of chunk createfactor](figure/createfactor-1.png) 

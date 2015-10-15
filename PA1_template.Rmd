@@ -15,7 +15,12 @@ if so, the archive only contains a single file so simply unzip it else quit
 
 then read in the file and convert date column to date type
 
-```{r getandpreprocess, results='hide'}
+```{r getandpreprocess, results='hide', message=FALSE}
+# load the libraries that we are goign to need
+library(data.table)
+library(dplyr)
+library(lattice)
+# check file and unzip as required
 if (file.exists('activity.csv')){#donothing
         }else{
                 if(!file.exists('activity.zip')){
@@ -65,7 +70,6 @@ note i'm suppressing the typecast warnings here:
 ```{r imputing, warning=FALSE}
 nullroes <- activity[is.na(activity$steps),]
 part1 <- nrow(nullroes)
-library(data.table)
 nullroes.dt <- data.table(nullroes, key = c("date", "interval"))
 activi.dt <- data.table(activity, key = c("date", "interval"))
 intervalav.dt <- data.table(intervalav, key = c("interval"))
@@ -85,11 +89,6 @@ median and mean in the histogram much but the central frequency's magnitude has 
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r loadsomelibs,  include=FALSE }
-library(dplyr)
-library(lattice)
-```
-
 ```{r createfactor}
 new2actidf <- mutate(newactidf, 
                      wendind = ifelse(grepl("^S", 
@@ -100,6 +99,8 @@ new3actidf <- aggregate(new2actidf$steps~new2actidf$interval + new2actidf$wendin
                         new2actidf, mean)
 names(new3actidf) <- c("interval", "wendind", "meansteps")
 str(new3actidf)
-xyplot(meansteps~interval|wendind, data = new3actidf, type ='l', layout = c(1,2))
+xyplot(meansteps~interval|wendind, data = new3actidf, type ='l', 
+       layout = c(1,2),
+       main = 'daily activity patterns')
 ```
 
