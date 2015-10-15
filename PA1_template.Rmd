@@ -96,6 +96,10 @@ new2actidf <- mutate(newactidf,
                         weekdays(newactidf$date)),yes = "weekend", no = "weekday"))
 new2actidf$wendind <- as.factor(new2actidf$wendind)
 str(new2actidf)
-xyplot(steps~interval|wendind, data = new2actidf)
+new3actidf <- aggregate(new2actidf$steps~new2actidf$interval + new2actidf$wendind,
+                        new2actidf, mean)
+names(new3actidf) <- c("interval", "wendind", "meansteps")
+str(new3actidf)
+xyplot(meansteps~interval|wendind, data = new3actidf, type ='l', layout = c(1,2))
 ```
 
