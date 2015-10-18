@@ -11,9 +11,9 @@ test that the data file has been unzipped into the working directory
 
 if not check that the source zip file is here,  
 
-if so, the archive only contains a single file so simply unzip it else quit  
+if so, the archive only contains a single file so simply unzip it else   
 
-then read in the file and convert date column to date type
+get it and then read in the file and convert date column to date type
 
 
 ```r
@@ -25,7 +25,10 @@ library(lattice)
 if (file.exists('activity.csv')){#donothing
         }else{
                 if(!file.exists('activity.zip')){
-                quit("Error: check working directory contains the file activity.zip")
+                        # get file from the link
+                        con<- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+                        download.file(con, "activity.zip", method = 'curl')        
+                        unzip("activity.zip")
                 }else{
                         unzip("activity.zip")
                         }
@@ -41,6 +44,7 @@ Group the data by day and use sum
 I leave the breaks calculation on the histogram to R as this works nicely
 
 ```r
+# group data by date and use sum() fuction to total
 daysum <- aggregate(activity$steps~activity$date, activity, sum)
 names(daysum) <- c("date", "stepcount")
 hist(daysum$stepcount, main = "histogram of daily stepcount", xlab = "stepcount")
@@ -49,6 +53,7 @@ hist(daysum$stepcount, main = "histogram of daily stepcount", xlab = "stepcount"
 ![plot of chunk averagingdays](figure/averagingdays-1.png) 
 
 ```r
+# display five number summary inc nea and median
 summary(daysum$stepcount)
 ```
 
@@ -58,7 +63,7 @@ summary(daysum$stepcount)
 ```
 
 ## What is the average daily activity pattern?
-Group by interval and use average  
+Group by interval and use mean() to average  
 
 The interval code is of the form hHMM where h can be absent) but this maps nicely  
 
@@ -77,7 +82,9 @@ plot(intervalav$interval ,intervalav$averagesteps, type = 'l',
 ```r
 stepsmaxinterval <- intervalav[which.max(intervalav$averagesteps),1]
 ```
-so the maximum average step count occurs at interval 835
+So the maximum average step count occurs at interval 835  
+Note when using a line graph the fact that data is NOT continuous is masked  
+(no values for intervals at miunte 60 - 95 can exist)
 
 ## Imputing missing values
 We are goign to use data.tables to replace all NA interval figures with the interval average figures from before  
@@ -156,4 +163,5 @@ xyplot(meansteps~interval|wendind, data = new3actidf, type ='l',
 ```
 
 ![plot of chunk createfactor](figure/createfactor-1.png) 
-
+So we can see that weekend activiy patterns have a similar (but less intense)  
+morning peak but then have a more peaky pattern throughout the day
