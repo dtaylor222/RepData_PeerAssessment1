@@ -110,5 +110,7 @@ xyplot(meansteps~interval|wendind, data = new3actidf, type ='l',
        layout = c(1,2),
        main = 'daily activity patterns')
 ```
+  
 So we can see that weekend activiy patterns have a similar (but less intense)  
+
 morning peak but then have a more peaky pattern throughout the day

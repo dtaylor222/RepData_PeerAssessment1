@@ -163,5 +163,7 @@ xyplot(meansteps~interval|wendind, data = new3actidf, type ='l',
 ```
 
 ![plot of chunk createfactor](figure/createfactor-1.png) 
+  
 So we can see that weekend activiy patterns have a similar (but less intense)  
+
 morning peak but then have a more peaky pattern throughout the day
